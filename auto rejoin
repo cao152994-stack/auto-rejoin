@@ -1,5 +1,5 @@
 -- ================== KEY CHECK ==================
-local CORRECT_KEY = "thinhdeptrai"
+local CORRECT_KEY = "THINHDEPTRAI"
 
 if getgenv().Key ~= CORRECT_KEY then
 	warn("Sai key hoặc chưa nhập key!")
@@ -22,6 +22,18 @@ screenGui.Name = "ErrorDisplayGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
+-- 🔹 DÒNG NGƯỜI TẠO
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Size = UDim2.new(0.4, 0, 0, 25)
+creditLabel.Position = UDim2.new(0.3, 0, 0.05, 0)
+creditLabel.BackgroundTransparency = 0.3
+creaditLavel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+creditLabel.TextScaled = true
+creditLabel.Font = Enum.Font.SourceSans
+creditLabel.Text = "Người tạo: Cao Thịnh"
+creditLabel.TextColor3 = Color3.fromRGB(255, 170, 0)
+creditLabel.Parent = screenGui
+
 local errorLabel = Instance.new("TextLabel")
 errorLabel.Size = UDim2.new(0.8, 0, 0, 50)
 errorLabel.Position = UDim2.new(0.1, 0, 0.1, 0)
@@ -29,7 +41,7 @@ errorLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 errorLabel.BackgroundTransparency = 0.3
 errorLabel.TextScaled = true
 errorLabel.Font = Enum.Font.SourceSansBold
-errorLabel.Text = "Status: Trí gay"
+errorLabel.Text = "Status: Trí Gay"
 errorLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
 errorLabel.Parent = screenGui
 
@@ -69,3 +81,4 @@ GuiService.ErrorMessageChanged:Connect(function(errorMessage)
 		isRejoining = false
 	end)
 end)
+
