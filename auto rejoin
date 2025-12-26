@@ -1,0 +1,71 @@
+-- ================== KEY CHECK ==================
+local CORRECT_KEY = "thinhdeptrai"
+
+if getgenv().Key ~= CORRECT_KEY then
+	warn("Sai key hoặc chưa nhập key!")
+	return
+end
+-- ===============================================
+
+local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+
+local player = Players.LocalPlayer
+
+-- ⏱️ chống spam rejoin
+local isRejoining = false
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ErrorDisplayGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local errorLabel = Instance.new("TextLabel")
+errorLabel.Size = UDim2.new(0.8, 0, 0, 50)
+errorLabel.Position = UDim2.new(0.1, 0, 0.1, 0)
+errorLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+errorLabel.BackgroundTransparency = 0.3
+errorLabel.TextScaled = true
+errorLabel.Font = Enum.Font.SourceSansBold
+errorLabel.Text = "Status: Trí gay"
+errorLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+errorLabel.Parent = screenGui
+
+-- check server full
+local function isServerFull(msg)
+	msg = string.lower(msg)
+	return msg:find("full") ~= nil
+end
+
+GuiService.ErrorMessageChanged:Connect(function(errorMessage)
+	print("Error:", errorMessage)
+
+	errorLabel.Text = "Error: " .. errorMessage
+	errorLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+
+	-- 🚫 server full → KHÔNG rejoin
+	if isServerFull(errorMessage) then
+		errorLabel.Text = "Server Full - No Rejoin"
+		errorLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+		return
+	end
+
+	-- 🔁 đang rejoin thì bỏ qua
+	if isRejoining then
+		return
+	end
+
+	isRejoining = true
+	task.wait(2)
+
+	if player then
+		TeleportService:Teleport(game.PlaceId, player)
+	end
+
+	-- ⏳ mở lại sau 10s
+	task.delay(10, function()
+		isRejoining = false
+	end)
+end)
