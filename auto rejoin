@@ -1,5 +1,5 @@
 -- ================== KEY CHECK ==================
-local CORRECT_KEY = "THINHDEPTRAI"
+local CORRECT_KEY = "BATAUVESO"
 
 if getgenv().Key ~= CORRECT_KEY then
 	warn("Sai key hoặc chưa nhập key!")
@@ -41,7 +41,7 @@ errorLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 errorLabel.BackgroundTransparency = 0.3
 errorLabel.TextScaled = true
 errorLabel.Font = Enum.Font.SourceSansBold
-errorLabel.Text = "Status: Trí Gay"
+errorLabel.Text = "Status: Idle"
 errorLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
 errorLabel.Parent = screenGui
 
