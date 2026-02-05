@@ -1,8 +1,5 @@
 -- ================== KEY CHECK ==================
 local CORRECT_KEY = "BATAUVESO"
 
-if getgenv().Key ~= CORRECT_KEY then
-	warn("Sai key hoặc chưa nhập key!")
-	return
-end
+
 print(CORRECT_KEY)
