@@ -1,5 +1,420 @@
--- ================== KEY CHECK ==================
-local CORRECT_KEY = "BATAUVESO"
+repeat task.wait() until game:IsLoaded()
+
+-----------------------
+-- SERVICES
+-----------------------
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 
-print("NIGGA4")
+local player = Players.LocalPlayer
+
+local HttpService = game:GetService("HttpService")
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1438903713304674445/_mWs9fTJ8NRLMNLgGCvmcJ7fEciTTYtUUJ4UZ6UW7Q_c73yjvaYxE9YX60hILwhZf8xQ"
+
+local function SendWebhook(NotificationName, FruitName)
+	local Data = {
+		embeds = {
+			{
+				title = NotificationName,
+				color = math.random(0, 16777215),
+
+				fields = {
+					{
+						name = "Fruit",
+						value = FruitName,
+						inline = true
+					},
+					{
+						name = "Job ID",
+						value = game.JobId,
+						inline = false
+					},
+					{
+						name = "Time",
+						value = os.date("%d/%m/%Y %H:%M:%S"),
+						inline = true
+					}
+				},
+
+				footer = {
+					text = "Mai Yeu P"
+				}
+			}
+		}
+	}
+
+	request({
+		Url = WEBHOOK_URL,
+		Method = "POST",
+		Headers = {
+			["Content-Type"] = "application/json"
+		},
+		Body = HttpService:JSONEncode(Data)
+	})
+end
+
+-----------------------
+-- UI (Roblox 2008 Style)
+-----------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "FruitFinderUI"
+gui.ResetOnSpawn = false
+gui.Parent = game.Players.LocalPlayer.PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0, 520, 0, 90)
+frame.Position = UDim2.new(0.5, -260, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(192,192,192)
+frame.BorderSizePixel = 1
+frame.BorderColor3 = Color3.new(0,0,0)
+
+local accent = Instance.new("Frame")
+accent.Parent = frame
+accent.Size = UDim2.new(1,0,0,20)
+accent.Position = UDim2.new(0,0,0,0)
+accent.BackgroundColor3 = Color3.fromRGB(10,36,106)
+accent.BorderSizePixel = 0
+
+local title = Instance.new("TextLabel")
+title.Parent = accent
+title.BackgroundTransparency = 1
+title.Position = UDim2.new(0,5,0,0)
+title.Size = UDim2.new(1,-10,1,0)
+title.Text = "Fruit Finder"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.ArialBold
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+local author = Instance.new("TextLabel")
+author.Parent = frame
+author.BackgroundTransparency = 1
+author.Position = UDim2.new(0,10,0,28)
+author.Size = UDim2.new(0,250,0,18)
+author.Text = "By Mai Yeu P"
+author.TextColor3 = Color3.new(0,0,0)
+author.Font = Enum.Font.Arial
+author.TextSize = 14
+author.TextXAlignment = Enum.TextXAlignment.Left
+
+local status = Instance.new("TextLabel")
+status.Parent = frame
+status.BackgroundTransparency = 1
+status.Position = UDim2.new(0,10,0,50)
+status.Size = UDim2.new(1,-20,0,18)
+status.Text = "Idle"
+status.TextColor3 = Color3.new(0,0,0)
+status.Font = Enum.Font.ArialBold
+status.TextSize = 16
+status.TextXAlignment = Enum.TextXAlignment.Left
+
+local playerCount = Instance.new("TextLabel")
+playerCount.Parent = frame
+playerCount.BackgroundTransparency = 1
+playerCount.Position = UDim2.new(0,350,0,28)
+playerCount.Size = UDim2.new(0,160,0,18)
+playerCount.Text = "Players: "..#game.Players:GetChildren()
+playerCount.TextColor3 = Color3.new(0,0,0)
+playerCount.Font = Enum.Font.ArialBold
+playerCount.TextSize = 14
+playerCount.TextXAlignment = Enum.TextXAlignment.Right
+
+local function UpdatePlayerCount()
+	playerCount.Text = "👥 "..#game.Players:GetChildren().." Players"
+end
+
+game.Players.PlayerAdded:Connect(UpdatePlayerCount)
+game.Players.PlayerRemoving:Connect(UpdatePlayerCount)
+
+UpdatePlayerCount()
+
+local function Status(text, color)
+	TweenService:Create(
+		status,
+		TweenInfo.new(0.5),
+		{TextColor3 = color}
+	):Play()
+
+	status.Text = text
+end
+
+-----------------------
+-- FIND FRUIT
+-----------------------
+local ReportedFruits = {}
+
+local function FindFruit()
+	for _, fruit in ipairs(workspace:GetChildren()) do
+		if (fruit:IsA("Tool") or fruit:IsA("Model"))
+			and fruit.Name:find("Fruit") then
+
+			local handle = fruit:FindFirstChild("Handle")
+
+			if handle and handle:IsA("BasePart") then
+
+				if not ReportedFruits[fruit] then
+					ReportedFruits[fruit] = true
+
+					SendWebhook("🍎 Tìm thấy trái", fruit.Name)
+
+					fruit.Destroying:Connect(function()
+						ReportedFruits[fruit] = nil
+					end)
+				end
+
+				return fruit
+			end
+		end
+	end
+end
+
+function Hop()
+    local success, data = pcall(function()
+        return HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/"
+                .. game.PlaceId ..
+                "/servers/Public?sortOrder=Asc&limit=100"
+            )
+        )
+    end)
+
+    if not success or not data or not data.data then
+        warn("Failed to get servers")
+        return
+    end
+
+    local servers = {}
+
+    for _, s in ipairs(data.data) do
+        if s.id ~= game.JobId
+        and s.playing > 0
+        and s.playing < s.maxPlayers then
+            table.insert(servers, s)
+        end
+    end
+
+    if #servers == 0 then
+        warn("No servers found")
+        return
+    end
+
+    while #servers > 0 do
+        local index = math.random(1, #servers)
+        local server = servers[index]
+
+        local ok = pcall(function()
+     
+game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport",server.id)
+        end)
+
+        if ok then
+            return
+        end
+
+        table.remove(servers, index)
+        task.wait(0.2)
+    end
+
+    warn("All teleports failed")
+end
+
+-----------------------
+-- STORE FUNCTION
+-----------------------
+local Watching = {}
+local Notified = {}
+
+local function Store(tool)
+	local EatRemote = tool:FindFirstChild("EatRemote", true)
+	if not EatRemote then
+		return
+	end
+
+	ReplicatedStorage.Remotes.CommF_:InvokeServer(
+		"StoreFruit",
+		EatRemote.Parent:GetAttribute("OriginalName"),
+		tool
+	)
+
+	if not Watching[tool] then
+		Watching[tool] = true
+
+		task.spawn(function()
+			local fruitName = tool.Name
+
+			while tool.Parent do
+				task.wait(0.1)
+			end
+
+			if not Notified[tool] then
+				Notified[tool] = true
+				SendWebhook("✅ Store thành công", fruitName)
+			end
+
+			Watching[tool] = nil
+		end)
+	end
+end
+
+-----------------------
+-- AUTO STORE
+-----------------------
+task.spawn(function()
+	while task.wait() do
+		for _, tool in ipairs(player.Backpack:GetChildren()) do
+			Store(tool)
+		end
+
+		if player.Character then
+			for _, tool in ipairs(player.Character:GetChildren()) do
+				Store(tool)
+			end
+		end
+	end
+end)
+
+
+local function AddLabel(part)
+	if part:FindFirstChild("BillboardGui") then
+		return
+	end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "BillboardGui"
+	billboard.Size = UDim2.new(0, 150, 0, 30)
+	billboard.AlwaysOnTop = true
+	billboard.StudsOffset = Vector3.new(0, 0, 0)
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.TextColor3 = Color3.fromRGB(255, 85, 0)
+	label.Parent = billboard
+
+	billboard.Parent = part
+
+	RunService.RenderStepped:Connect(function()
+		if not part.Parent then
+			return
+		end
+
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			local distance = math.floor((hrp.Position - part.Position).Magnitude)
+			label.Text = "Fruit [" .. distance .. "m]"
+		end
+	end)
+end
+
+-----------------------
+-- WAIT UNTIL FRUIT
+-----------------------
+local fruit = FindFruit()
+
+while not fruit do
+	for i=4,1,-1 do
+		Status("No fruit -> Hopping in "..i,Color3.fromRGB(255, 255, 0))
+		task.wait(1)
+	end
+	Hop()
+	task.wait(3)
+	fruit = FindFruit()
+end
+
+-----------------------
+-- JOIN TEAM
+-----------------------
+pcall(function()
+	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
+end)
+
+repeat task.wait()
+until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+local hrp = player.Character.HumanoidRootPart
+
+function BodyVelocity(hrp)
+	if not hrp:FindFirstChild("BodyVelocity") then
+			local BodyVelocity = Instance.new("BodyVelocity")
+	BodyVelocity.Parent = hrp
+	BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+	BodyVelocity.MaxForce = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+
+local e = Instance.new("BodyAngularVelocity")
+e.AngularVelocity = Vector3.new()
+e.MaxTorque = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+e.Name = "bAV"
+e.Parent = hrp
+	end
+end
+
+function NoClip()
+
+
+	for a,b in pairs(workspace:GetChildren()) do
+		if b.Name == player.Name then
+
+			for i,v in pairs(workspace[player.Name]:GetChildren()) do
+				if v:IsA("BasePart") then	
+					v.CanCollide = false
+				end
+			end
+		end
+	end				
+end
+
+-----------------------
+-- TWEEN FUNCTION
+-----------------------
+local Speed = 300
+local function TweenTo(cf, pos)
+	local distance = (hrp.Position - pos).Magnitude
+	local timetw = math.max((distance - 150) / Speed, 0)
+
+	BodyVelocity(hrp)
+	NoClip()
+
+	local tween = TweenService:Create(
+		hrp,
+		TweenInfo.new(timetw, Enum.EasingStyle.Linear),
+		{
+			CFrame = cf
+		}
+	)
+
+	tween:Play()
+	return tween
+end
+
+-----------------------
+-- MAIN LOOP
+-----------------------
+while true do
+	local fruit = FindFruit()
+
+	if fruit and fruit:FindFirstChild("Handle") then
+		
+		Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
+		AddLabel(fruit.Handle)
+		TweenTo(fruit.Handle.CFrame, fruit.Handle.Position)
+		task.wait(0.5)
+	else
+		task.wait(2)
+		for i=7,1,-1 do
+			Status("Hopping in..."..i)
+			task.wait(1)
+		end
+		Hop()
+	end
+end
