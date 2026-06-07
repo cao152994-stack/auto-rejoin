@@ -364,7 +364,19 @@ end
 
 repeat task.wait()
 until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+task.spawn(function()
+    while task.wait() do
+        local char = player.Character
 
+        if char then
+            for _, v in ipairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
+            end
+        end
+    end
+end)
 local hrp = player.Character.HumanoidRootPart
 
 function BodyVelocity(hrp)
