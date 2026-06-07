@@ -322,6 +322,13 @@ end
 -----------------------
 local fruit = FindFruit()
 
+-----------------------
+-- JOIN TEAM
+-----------------------
+pcall(function()
+	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
+end)
+
 while not fruit do
 	for i=4,1,-1 do
 		Status("No fruit -> Hopping in "..i,Color3.fromRGB(255, 255, 0))
@@ -332,12 +339,7 @@ while not fruit do
 	fruit = FindFruit()
 end
 
------------------------
--- JOIN TEAM
------------------------
-pcall(function()
-	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
-end)
+
 
 repeat task.wait()
 until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
