@@ -145,6 +145,19 @@ local function Status(text, color)
 	status.Text = text
 end
 
+local function antiSit(char)
+    local hum = char:WaitForChild("Humanoid")
+
+    while hum.Parent do
+        if hum.Sit == true then
+            hum.Sit = false
+            hum:ChangeState(Enum.HumanoidStateType.Running)
+        end
+        task.wait(0.1)
+    end
+end
+
+
 -----------------------
 -- FIND FRUIT
 -----------------------
@@ -386,7 +399,7 @@ local function TweenTo(cf, pos)
 
 	BodyVelocity(hrp)
 	NoClip()
-
+antiSit(player.Character)
 	local tween = TweenService:Create(
 		hrp,
 		TweenInfo.new(timetw, Enum.EasingStyle.Linear),
