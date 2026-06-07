@@ -157,7 +157,15 @@ local function antiSit(char)
     end
 end
 
+task.spawn(function()
+    if player.Character then
+        antiSit(player.Character)
+    end
 
+    player.CharacterAdded:Connect(function(char)
+        task.spawn(antiSit, char)
+    end)
+end)
 -----------------------
 -- FIND FRUIT
 -----------------------
@@ -392,26 +400,47 @@ end
 -----------------------
 -- TWEEN FUNCTION
 -----------------------
+local RunService = game:GetService("RunService")
+
 local Speed = 300
-local function TweenTo(cf, pos)
-	local distance = (hrp.Position - pos).Magnitude
-	local timetw = math.max((distance - 150) / Speed, 0)
 
-	BodyVelocity(hrp)
-	NoClip()
-antiSit(player.Character)
-	local tween = TweenService:Create(
-		hrp,
-		TweenInfo.new(timetw, Enum.EasingStyle.Linear),
-		{
-			CFrame = cf
-		}
-	)
+local function TweenToFruit(fruit)
+    local character = player.Character
+    if not character then return end
 
-	tween:Play()
-	return tween
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    BodyVelocity(hrp)
+
+    while fruit
+        and fruit.Parent
+        and fruit:FindFirstChild("Handle")
+        and player.Character
+        and player.Character:FindFirstChild("HumanoidRootPart") do
+
+        hrp = player.Character.HumanoidRootPart
+
+        NoClip()
+
+        local targetPos = fruit.Handle.Position
+        local distance = (targetPos - hrp.Position).Magnitude
+
+        if distance <= 5 then
+            break
+        end
+
+        local dt = RunService.Heartbeat:Wait()
+
+        local moveDistance = math.min(Speed * dt, distance)
+
+        local direction = (targetPos - hrp.Position).Unit
+
+        local newPos = hrp.Position + direction * moveDistance
+
+        character:PivotTo(CFrame.new(newPos))
+    end
 end
-
 -----------------------
 -- MAIN LOOP
 -----------------------
@@ -422,7 +451,7 @@ while true do
 		
 		Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
 		AddLabel(fruit.Handle)
-		TweenTo(fruit.Handle.CFrame, fruit.Handle.Position)
+		TweenToFruit(fruit)
 		task.wait(0.5)
 	else
 		task.wait(2)
