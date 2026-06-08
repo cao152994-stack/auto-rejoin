@@ -216,8 +216,8 @@ function Hop()
 
     for _, s in ipairs(data.data) do
         if s.id ~= game.JobId
-        and s.playing > 0
-        and s.playing < s.maxPlayers then
+        and s.playing >= 7
+        and s.playing <= 11 then
             table.insert(servers, s)
         end
     end
