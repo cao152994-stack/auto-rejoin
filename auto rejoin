@@ -202,7 +202,7 @@ function Hop()
             game:HttpGet(
                 "https://games.roblox.com/v1/games/"
                 .. game.PlaceId ..
-                "/servers/Public?sortOrder=Asc&limit=100"
+                "/servers/Public?sortOrder=Desc&limit=100"
             )
         )
     end)
@@ -217,31 +217,37 @@ function Hop()
     for _, s in ipairs(data.data) do
         if s.id ~= game.JobId
         and s.playing >= 7
-        and s.playing <= 11 then
+        and s.playing <= 11
+        then
             table.insert(servers, s)
         end
     end
 
     if #servers == 0 then
-        warn("No servers found")
+        warn("No servers found (7-11 players)")
         return
     end
 
-    while #servers > 0 do
-        local index = math.random(1, #servers)
-        local server = servers[index]
+    table.sort(servers, function(a, b)
+        return a.playing > b.playing
+    end)
 
-        local ok = pcall(function()
-     
-game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport",server.id)
+    for _, server in ipairs(servers) do
+        print(("Trying %s (%d players)"):format(server.id, server.playing))
+
+        local ok, err = pcall(function()
+            ReplicatedStorage.__ServerBrowser:InvokeServer(
+                "teleport",
+                server.id
+            )
         end)
 
         if ok then
             return
         end
 
-        table.remove(servers, index)
-        task.wait(0.2)
+        warn(err)
+        task.wait(1)
     end
 
     warn("All teleports failed")
