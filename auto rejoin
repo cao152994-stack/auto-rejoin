@@ -197,60 +197,60 @@ local function FindFruit()
 end
 
 function Hop()
-    local success, data = pcall(function()
-        return HttpService:JSONDecode(
-            game:HttpGet(
-                "https://games.roblox.com/v1/games/"
-                .. game.PlaceId ..
-                "/servers/Public?sortOrder=Desc&limit=100"
-            )
-        )
-    end)
-
-    if not success or not data or not data.data then
-        warn("Failed to get servers")
-        return
-    end
-
     local servers = {}
+    local cursor = ""
+    local pageCount = 0
 
-    for _, s in ipairs(data.data) do
-        if s.id ~= game.JobId
-        and s.playing >= 7
-        and s.playing <= 11
-        then
-            table.insert(servers, s)
-        end
-    end
+    repeat
+        local url =
+            "https://games.roblox.com/v1/games/" ..
+            game.PlaceId ..
+            "/servers/Public?sortOrder=Desc&limit=100" ..
+            (cursor ~= "" and "&cursor=" .. cursor or "")
 
-    if #servers == 0 then
-        warn("No servers found (7-11 players)")
-        return
-    end
-
-    table.sort(servers, function(a, b)
-        return a.playing > b.playing
-    end)
-
-    for _, server in ipairs(servers) do
-        print(("Trying %s (%d players)"):format(server.id, server.playing))
-
-        local ok, err = pcall(function()
-            ReplicatedStorage.__ServerBrowser:InvokeServer(
-                "teleport",
-                server.id
-            )
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(game:HttpGet(url))
         end)
 
-        if ok then
-            return
+        if not success or not data or not data.data then
+            break
         end
 
-        warn(err)
-        task.wait(1)
+        for _, s in ipairs(data.data) do
+            if s.id ~= game.JobId
+            and s.playing >= 7
+            and s.playing < 11 then
+                table.insert(servers, s)
+            end
+        end
+
+        cursor = data.nextPageCursor
+        pageCount += 1
+
+        task.wait(0.1)
+
+    until not cursor or #servers >= 20 or pageCount >= 20
+
+    if #servers == 0 then
+        warn("No servers found (7-10 players)")
+        return
     end
 
-    warn("All teleports failed")
+    local server = servers[math.random(1, #servers)]
+
+    print(
+        string.format(
+            "Teleporting -> %d/%d | %s",
+            server.playing,
+            server.maxPlayers,
+            server.id
+        )
+    )
+
+    ReplicatedStorage.__ServerBrowser:InvokeServer(
+        "teleport",
+        server.id
+    )
 end
 
 -----------------------
