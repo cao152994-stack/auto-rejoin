@@ -244,9 +244,7 @@ local function Hop()
         return false
     end
 
-    if Site.nextPageCursor then
-        foundAnything = Site.nextPageCursor
-    end
+  foundAnything = Site.nextPageCursor or ""
 
     table.sort(Site.data, function(a, b)
         return a.playing > b.playing
@@ -399,13 +397,12 @@ pcall(function()
 end)
 
 while not fruit do
-	for i=4,1,-1 do
-		Status("No fruit -> Hopping in "..i,Color3.fromRGB(255, 255, 0))
-		task.wait(1)
-	end
-	Hop()
-	task.wait(3)
-	fruit = FindFruit()
+    Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+
+    Hop()
+
+    task.wait(1)
+    fruit = FindFruit()
 end
 
 
@@ -569,11 +566,8 @@ while true do
 		TweenToFruit(fruit)
 		task.wait(0.5)
 	else
-		task.wait(2)
-		for i=7,1,-1 do
-			Status("Hopping in..."..i)
-			task.wait(1)
-		end
-		Hop()
+		Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+
+    Hop()
 	end
 end
