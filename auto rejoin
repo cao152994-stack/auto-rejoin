@@ -196,61 +196,98 @@ local function FindFruit()
 	end
 end
 
-function Hop()
-    local servers = {}
-    local cursor = ""
-    local pageCount = 0
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
 
-    repeat
-        local url =
-            "https://games.roblox.com/v1/games/" ..
-            game.PlaceId ..
-            "/servers/Public?sortOrder=Desc&limit=100" ..
-            (cursor ~= "" and "&cursor=" .. cursor or "")
+pcall(function()
+    AllIDs = HttpService:JSONDecode(readfile("server-hop-temp.json"))
+end)
 
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(game:HttpGet(url))
-        end)
+if #AllIDs == 0 then
+    table.insert(AllIDs, actualHour)
 
-        if not success or not data or not data.data then
-            break
-        end
+    pcall(function()
+        writefile("server-hop-temp.json", HttpService:JSONEncode(AllIDs))
+    end)
+end
 
-        for _, s in ipairs(data.data) do
-            if s.id ~= game.JobId
-            and s.playing >= 7
-            and s.playing < 11 then
-                table.insert(servers, s)
-            end
-        end
+local function Hop()
+    local Site
 
-        cursor = data.nextPageCursor
-        pageCount += 1
-
-        task.wait(0.1)
-
-    until not cursor or #servers >= 20 or pageCount >= 20
-
-    if #servers == 0 then
-        warn("No servers found (7-10 players)")
-        return
+    if foundAnything == "" then
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" ..
+                game.PlaceId ..
+                "/servers/Public?sortOrder=Desc&limit=100"
+            )
+        )
+    else
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" ..
+                game.PlaceId ..
+                "/servers/Public?sortOrder=Desc&limit=100&cursor=" ..
+                foundAnything
+            )
+        )
     end
 
-    local server = servers[math.random(1, #servers)]
+    if Site.nextPageCursor then
+        foundAnything = Site.nextPageCursor
+    end
 
-    print(
-        string.format(
-            "Teleporting -> %d/%d | %s",
-            server.playing,
-            server.maxPlayers,
-            server.id
-        )
-    )
+    table.sort(Site.data, function(a, b)
+        return a.playing > b.playing
+    end)
 
-    ReplicatedStorage.__ServerBrowser:InvokeServer(
-        "teleport",
-        server.id
-    )
+    for _, server in ipairs(Site.data) do
+        if server.playing < server.maxPlayers then
+            local Possible = true
+            local ID = tostring(server.id)
+
+            for i, Existing in ipairs(AllIDs) do
+                if i == 1 then
+                    if tonumber(actualHour) ~= tonumber(Existing) then
+                        pcall(function()
+                            delfile("server-hop-temp.json")
+                        end)
+
+                        AllIDs = {actualHour}
+                    end
+                elseif ID == tostring(Existing) then
+                    Possible = false
+                    break
+                end
+            end
+
+            if Possible then
+                table.insert(AllIDs, ID)
+
+                pcall(function()
+                    writefile(
+                        "server-hop-temp.json",
+                        HttpService:JSONEncode(AllIDs)
+                    )
+                end)
+
+                print(("Hop -> %d/%d"):format(
+                    server.playing,
+                    server.maxPlayers
+                ))
+
+                ReplicatedStorage.__ServerBrowser:InvokeServer(
+                    "teleport",
+                    server.id
+                )
+
+                return true
+            end
+        end
+    end
+
+    return false
 end
 
 -----------------------
