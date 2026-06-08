@@ -197,12 +197,17 @@ local function FindFruit()
 end
 
 local AllIDs = {}
+local Visited = {}
 local foundAnything = ""
 local actualHour = os.date("!*t").hour
 
 pcall(function()
     AllIDs = HttpService:JSONDecode(readfile("server-hop-temp.json"))
 end)
+
+if type(AllIDs) ~= "table" then
+    AllIDs = {}
+end
 
 if #AllIDs == 0 then
     table.insert(AllIDs, actualHour)
@@ -212,26 +217,31 @@ if #AllIDs == 0 then
     end)
 end
 
-local function Hop()
-    local Site
+-- Tạo bảng tra cứu nhanh
+for i, v in ipairs(AllIDs) do
+    if i > 1 then
+        Visited[tostring(v)] = true
+    end
+end
 
-    if foundAnything == "" then
-        Site = HttpService:JSONDecode(
-            game:HttpGet(
-                "https://games.roblox.com/v1/games/" ..
-                game.PlaceId ..
-                "/servers/Public?sortOrder=Desc&limit=100"
-            )
-        )
-    else
-        Site = HttpService:JSONDecode(
-            game:HttpGet(
-                "https://games.roblox.com/v1/games/" ..
-                game.PlaceId ..
-                "/servers/Public?sortOrder=Desc&limit=100&cursor=" ..
-                foundAnything
-            )
-        )
+local function Hop()
+    local url =
+        "https://games.roblox.com/v1/games/" ..
+        game.PlaceId ..
+        "/servers/Public?sortOrder=Desc&limit=100" ..
+        (foundAnything ~= "" and "&cursor=" .. foundAnything or "")
+
+    local startTime = tick()
+
+    local success, Site = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+
+    print("API took:", tick() - startTime)
+
+    if not success or not Site or not Site.data then
+        warn("Failed to fetch servers")
+        return false
     end
 
     if Site.nextPageCursor then
@@ -242,48 +252,44 @@ local function Hop()
         return a.playing > b.playing
     end)
 
+    -- Reset danh sách mỗi giờ
+    if tonumber(AllIDs[1]) ~= actualHour then
+        pcall(function()
+            delfile("server-hop-temp.json")
+        end)
+
+        AllIDs = {actualHour}
+        Visited = {}
+    end
+
     for _, server in ipairs(Site.data) do
-        if server.playing < 11 then
-            local Possible = true
-            local ID = tostring(server.id)
+        local ID = tostring(server.id)
 
-            for i, Existing in ipairs(AllIDs) do
-                if i == 1 then
-                    if tonumber(actualHour) ~= tonumber(Existing) then
-                        pcall(function()
-                            delfile("server-hop-temp.json")
-                        end)
+        if server.id ~= game.JobId
+        and server.playing < server.maxPlayers
+        and not Visited[ID] then
 
-                        AllIDs = {actualHour}
-                    end
-                elseif ID == tostring(Existing) then
-                    Possible = false
-                    break
-                end
-            end
+            print(("Hop -> %d/%d"):format(
+                server.playing,
+                server.maxPlayers
+            ))
 
-            if Possible then
-                table.insert(AllIDs, ID)
+            table.insert(AllIDs, ID)
+            Visited[ID] = true
 
-                pcall(function()
-                    writefile(
-                        "server-hop-temp.json",
-                        HttpService:JSONEncode(AllIDs)
-                    )
-                end)
-
-                print(("Hop -> %d/%d"):format(
-                    server.playing,
-                    server.maxPlayers
-                ))
-
-                ReplicatedStorage.__ServerBrowser:InvokeServer(
-                    "teleport",
-                    server.id
+            pcall(function()
+                writefile(
+                    "server-hop-temp.json",
+                    HttpService:JSONEncode(AllIDs)
                 )
+            end)
 
-                return true
-            end
+            ReplicatedStorage.__ServerBrowser:InvokeServer(
+                "teleport",
+                server.id
+            )
+
+            return true
         end
     end
 
