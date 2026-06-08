@@ -196,49 +196,98 @@ local function FindFruit()
 	end
 end
 
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
+
+pcall(function()
+    AllIDs = HttpService:JSONDecode(readfile("server-hop-temp.json"))
+end)
+
+if #AllIDs == 0 then
+    table.insert(AllIDs, actualHour)
+
+    pcall(function()
+        writefile("server-hop-temp.json", HttpService:JSONEncode(AllIDs))
+    end)
+end
+
 local function Hop()
-    foundAnything = ""
+    local Site
 
-    while true do
-        local url =
-            "https://games.roblox.com/v1/games/" ..
-            game.PlaceId ..
-            "/servers/Public?sortOrder=Desc&limit=100" ..
-            (foundAnything ~= "" and "&cursor=" .. foundAnything or "")
+    if foundAnything == "" then
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" ..
+                game.PlaceId ..
+                "/servers/Public?sortOrder=Desc&limit=100"
+            )
+        )
+    else
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" ..
+                game.PlaceId ..
+                "/servers/Public?sortOrder=Desc&limit=100&cursor=" ..
+                foundAnything
+            )
+        )
+    end
 
-        local Site = HttpService:JSONDecode(game:HttpGet(url))
+    if Site.nextPageCursor then
+        foundAnything = Site.nextPageCursor
+    end
 
-        if Site.nextPageCursor then
-            foundAnything = Site.nextPageCursor
-        else
-            foundAnything = ""
-        end
+    table.sort(Site.data, function(a, b)
+        return a.playing > b.playing
+    end)
 
-        table.sort(Site.data, function(a,b)
-            return a.playing > b.playing
-        end)
+    for _, server in ipairs(Site.data) do
+        if server.playing < 11 then
+            local Possible = true
+            local ID = tostring(server.id)
 
-        for _, server in ipairs(Site.data) do
-            if server.id ~= game.JobId
-            and server.playing < server.maxPlayers then
+            for i, Existing in ipairs(AllIDs) do
+                if i == 1 then
+                    if tonumber(actualHour) ~= tonumber(Existing) then
+                        pcall(function()
+                            delfile("server-hop-temp.json")
+                        end)
 
-                print("Trying:", server.playing, server.id)
+                        AllIDs = {actualHour}
+                    end
+                elseif ID == tostring(Existing) then
+                    Possible = false
+                    break
+                end
+            end
+
+            if Possible then
+                table.insert(AllIDs, ID)
+
+                pcall(function()
+                    writefile(
+                        "server-hop-temp.json",
+                        HttpService:JSONEncode(AllIDs)
+                    )
+                end)
+
+                print(("Hop -> %d/%d"):format(
+                    server.playing,
+                    server.maxPlayers
+                ))
 
                 ReplicatedStorage.__ServerBrowser:InvokeServer(
                     "teleport",
                     server.id
                 )
 
-                return
+                return true
             end
         end
-
-        if foundAnything == "" then
-            break
-        end
-
-        task.wait(0.2)
     end
+
+    return false
 end
 -----------------------
 -- STORE FUNCTION
