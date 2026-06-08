@@ -412,11 +412,69 @@ end
 -----------------------
 -- TWEEN FUNCTION
 -----------------------
+
+local Curse = CFrame.new(
+    920.478027, 154.901001, 32838.9648,
+    0, 0, -1,
+    0, 1, 0,
+    1, 0, 0
+)
+
+local Flamingo = CFrame.new(
+    2284.90918, 15.537796, 910.481323,
+    1, 0, 0,
+    0, 1, 0,
+    0, 0, 1
+)
+
+local CurseCheck = Vector3.new(
+    -6496.89795,
+    89.0350037,
+    -116.509003
+)
+
+local FlamingoCheck = Vector3.new(
+    -286.985962,
+    306.13739,
+    592.881958
+)
+
+local function TeleportNearest(A)
+    local character = player.Character
+    if not character then return end
+
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local dCurse = (CurseCheck - A).Magnitude
+    local dFlamingo = (FlamingoCheck - A).Magnitude
+    local dHRP = (hrp.Position - A).Magnitude
+
+    if dCurse < dFlamingo and dCurse < dHRP then
+        hrp.CFrame = Curse
+        return "Curse"
+    elseif dFlamingo < dCurse and dFlamingo < dHRP then
+        hrp.CFrame = Flamingo
+        return "Flamingo"
+    end
+
+    return "Current"
+end
+
 local RunService = game:GetService("RunService")
 
 local Speed = 300
 
+local ProcessedFruits = {}
+
 local function TweenToFruit(fruit)
+    if not fruit or not fruit:FindFirstChild("Handle") then
+        return
+    end
+
+    -- Chỉ check và teleport 1 lần trước khi bay tới trái
+    TeleportNearest(fruit.Handle.Position)
+
     local character = player.Character
     if not character then return end
 
@@ -443,11 +501,8 @@ local function TweenToFruit(fruit)
         end
 
         local dt = RunService.Heartbeat:Wait()
-
         local moveDistance = math.min(Speed * dt, distance)
-
         local direction = (targetPos - hrp.Position).Unit
-
         local newPos = hrp.Position + direction * moveDistance
 
         character:PivotTo(CFrame.new(newPos))
