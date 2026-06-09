@@ -14,12 +14,12 @@ local Speed = 300
 local player = Players.LocalPlayer
 
 local function GetCharacter()
-    return player.Character or player.CharacterAdded:Wait()
+	return player.Character or player.CharacterAdded:Wait()
 end
 
 local function GetHRP()
-    local char = player.Character or player.CharacterAdded:Wait()
-    return char:WaitForChild("HumanoidRootPart")
+	local char = player.Character or player.CharacterAdded:Wait()
+	return char:WaitForChild("HumanoidRootPart")
 end
 
 local HttpService = game:GetService("HttpService")
@@ -39,7 +39,7 @@ local function SendWebhook(NotificationName, FruitName)
 						value = FruitName,
 						inline = true
 					},
-{
+					{
 						name = "Player",
 						value = player.Name,
 						inline = true
@@ -160,26 +160,26 @@ local function Status(text, color)
 end
 
 local function antiSit(char)
-    local hum = char:WaitForChild("Humanoid")
+	local hum = char:WaitForChild("Humanoid")
 
-    while hum.Parent do
-        if hum.Sit == true then
-            hum.Sit = false
-            hum:ChangeState(Enum.HumanoidStateType.Running)
-        end
-        task.wait(0.1)
-    end
+	while hum.Parent do
+		if hum.Sit == true then
+			hum.Sit = false
+			hum:ChangeState(Enum.HumanoidStateType.Running)
+		end
+		task.wait(0.1)
+	end
 end
 
 task.spawn(function()
 	local char = GetCharacter()
-    if char then
-        antiSit(char)
-    end
+	if char then
+		antiSit(char)
+	end
 
-    player.CharacterAdded:Connect(function(char)
-        task.spawn(antiSit, char)
-    end)
+	player.CharacterAdded:Connect(function(char)
+		task.spawn(antiSit, char)
+	end)
 end)
 -----------------------
 -- FIND FRUIT
@@ -217,96 +217,96 @@ local foundAnything = ""
 local actualHour = os.date("!*t").hour
 
 pcall(function()
-    AllIDs = HttpService:JSONDecode(readfile("server-hop-temp.json"))
+	AllIDs = HttpService:JSONDecode(readfile("server-hop-temp.json"))
 end)
 
 if type(AllIDs) ~= "table" then
-    AllIDs = {}
+	AllIDs = {}
 end
 
 if #AllIDs == 0 then
-    table.insert(AllIDs, actualHour)
+	table.insert(AllIDs, actualHour)
 
-    pcall(function()
-        writefile("server-hop-temp.json", HttpService:JSONEncode(AllIDs))
-    end)
+	pcall(function()
+		writefile("server-hop-temp.json", HttpService:JSONEncode(AllIDs))
+	end)
 end
 
 -- Tạo bảng tra cứu nhanh
 for i, v in ipairs(AllIDs) do
-    if i > 1 then
-        Visited[tostring(v)] = true
-    end
+	if i > 1 then
+		Visited[tostring(v)] = true
+	end
 end
 
 local function Hop()
-    local url =
-        "https://games.roblox.com/v1/games/" ..
-        game.PlaceId ..
-        "/servers/Public?sortOrder=Desc&limit=100" ..
-        (foundAnything ~= "" and "&cursor=" .. foundAnything or "")
+	local url =
+		"https://games.roblox.com/v1/games/" ..
+		game.PlaceId ..
+		"/servers/Public?sortOrder=Desc&limit=100" ..
+		(foundAnything ~= "" and "&cursor=" .. foundAnything or "")
 
-    local startTime = tick()
+	local startTime = tick()
 
-    local success, Site = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet(url))
-    end)
+	local success, Site = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet(url))
+	end)
 
-    print("API took:", tick() - startTime)
+	print("API took:", tick() - startTime)
 
-    if not success or not Site or not Site.data then
-        warn("Failed to fetch servers")
-        return false
-    end
+	if not success or not Site or not Site.data then
+		warn("Failed to fetch servers")
+		return false
+	end
 
-  foundAnything = Site.nextPageCursor or ""
+	foundAnything = Site.nextPageCursor or ""
 
-    table.sort(Site.data, function(a, b)
-        return a.playing > b.playing
-    end)
+	table.sort(Site.data, function(a, b)
+		return a.playing > b.playing
+	end)
 
-    -- Reset danh sách mỗi giờ
-    if tonumber(AllIDs[1]) ~= actualHour then
-        pcall(function()
-            delfile("server-hop-temp.json")
-        end)
+	-- Reset danh sách mỗi giờ
+	if tonumber(AllIDs[1]) ~= actualHour then
+		pcall(function()
+			delfile("server-hop-temp.json")
+		end)
 
-        AllIDs = {actualHour}
-        Visited = {}
-    end
+		AllIDs = {actualHour}
+		Visited = {}
+	end
 
-    for _, server in ipairs(Site.data) do
-        local ID = tostring(server.id)
+	for _, server in ipairs(Site.data) do
+		local ID = tostring(server.id)
 
-        if server.id ~= game.JobId
-        and server.playing <= 11
-        and not Visited[ID] then
+		if server.id ~= game.JobId
+			and server.playing <= 11
+			and not Visited[ID] then
 
-            print(("Hop -> %d/%d"):format(
-                server.playing,
-                server.maxPlayers
-            ))
+			print(("Hop -> %d/%d"):format(
+				server.playing,
+				server.maxPlayers
+				))
 
-            table.insert(AllIDs, ID)
-            Visited[ID] = true
+			table.insert(AllIDs, ID)
+			Visited[ID] = true
 
-            pcall(function()
-                writefile(
-                    "server-hop-temp.json",
-                    HttpService:JSONEncode(AllIDs)
-                )
-            end)
+			pcall(function()
+				writefile(
+					"server-hop-temp.json",
+					HttpService:JSONEncode(AllIDs)
+				)
+			end)
 
-            ReplicatedStorage.__ServerBrowser:InvokeServer(
-                "teleport",
-                server.id
-            )
+			ReplicatedStorage.__ServerBrowser:InvokeServer(
+				"teleport",
+				server.id
+			)
 
-            return true
-        end
-    end
+			return true
+		end
+	end
 
-    return false
+	return false
 end
 -----------------------
 -- STORE FUNCTION
@@ -354,7 +354,7 @@ task.spawn(function()
 		for _, tool in ipairs(player.Backpack:GetChildren()) do
 			Store(tool)
 		end
-local char = GetCharacter()
+		local char = GetCharacter()
 		if char then
 			for _, tool in ipairs(char:GetChildren()) do
 				Store(tool)
@@ -371,14 +371,17 @@ local function AddLabel(part)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "BillboardGui"
-	billboard.Size = UDim2.new(0, 150, 0, 30)
+	billboard.Size = UDim2.new(0, 200, 0, 50)
+	billboard.StudsOffset = Vector3.new(0, 3, 0)
 	billboard.AlwaysOnTop = true
-	billboard.StudsOffset = Vector3.new(0, 0, 0)
+	billboard.Parent = part
 
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
+	label.Size = UDim2.new(1, 0, 1, 0)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
+	label.Font = Enum.Font.SourceSansBold
+	label.TextStrokeTransparency = 0
 	label.TextColor3 = Color3.fromRGB(255, 0, 0)
 	label.Parent = billboard
 
@@ -394,7 +397,13 @@ local function AddLabel(part)
 
 		if hrp then
 			local distance = math.floor((hrp.Position - part.Position).Magnitude)
-			label.Text = "Fruit [" .. distance .. "m]"
+			local meters = math.floor(distance / 3)
+
+			label.Text = string.format(
+				"%s\n[%dm]",
+				part.Parent.Name,
+				meters
+			)
 		end
 	end)
 end
@@ -407,12 +416,12 @@ local fruit = FindFruit()
 
 
 while not fruit do
-    Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+	Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
 
-    Hop()
+	Hop()
 
-    task.wait(1)
-    fruit = FindFruit()
+	task.wait(1)
+	fruit = FindFruit()
 end
 
 -----------------------
@@ -423,33 +432,43 @@ pcall(function()
 end)
 
 task.spawn(function()
-    while task.wait() do
-        local char = GetCharacter()
+	while task.wait() do
+		local char = GetCharacter()
 
-        if char then
-            for _, v in ipairs(char:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = false
-                end
-            end
-        end
-    end
+		if char then
+			for _, v in ipairs(char:GetDescendants()) do
+				if v:IsA("BasePart") then
+					v.CanCollide = false
+				end
+			end
+		end
+	end
 end)
 local hrp = GetHRP()
 
 function BodyVelocity(hrp)
 	if not hrp:FindFirstChild("BodyVelocity") then
-			local BodyVelocity = Instance.new("BodyVelocity")
-	BodyVelocity.Parent = hrp
-	BodyVelocity.Velocity = Vector3.new(0, 0, 0)
-	BodyVelocity.MaxForce = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+		local BodyVelocity = Instance.new("BodyVelocity")
+		BodyVelocity.Parent = hrp
+		BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+		BodyVelocity.MaxForce = Vector3.new(1 / 0, 1 / 0, 1 / 0)
 
-local e = Instance.new("BodyAngularVelocity")
-e.AngularVelocity = Vector3.new()
-e.MaxTorque = Vector3.new(1 / 0, 1 / 0, 1 / 0)
-e.Name = "bAV"
-e.Parent = hrp
+		local e = Instance.new("BodyAngularVelocity")
+		e.AngularVelocity = Vector3.new()
+		e.MaxTorque = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+		e.Name = "bAV"
+		e.Parent = hrp
 	end
+end
+
+local function AddHighlight(char)
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "ChaHighlight"
+	highlight.FillTransparency = 0.6
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.FillColor = Color3.fromRGB(255, 0, 0)
+	highlight.OutlineTransparency = 0
+	highlight.Parent = char
 end
 
 function NoClip()
@@ -472,29 +491,29 @@ end
 -----------------------
 
 local Curse = CFrame.new(
-    920.478027, 154.901001, 32838.9648,
-    0, 0, -1,
-    0, 1, 0,
-    1, 0, 0
+	920.478027, 154.901001, 32838.9648,
+	0, 0, -1,
+	0, 1, 0,
+	1, 0, 0
 )
 
 local Flamingo = CFrame.new(
-    2284.90918, 15.537796, 910.481323,
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1
+	2284.90918, 15.537796, 910.481323,
+	1, 0, 0,
+	0, 1, 0,
+	0, 0, 1
 )
 
 local CurseCheck = Vector3.new(
-    -6496.89795,
-    89.0350037,
-    -116.509003
+	-6496.89795,
+	89.0350037,
+	-116.509003
 )
 
 local FlamingoCheck = Vector3.new(
-    -286.985962,
-    306.13739,
-    592.881958
+	-286.985962,
+	306.13739,
+	592.881958
 )
 
 local JustTeleported = false
@@ -599,18 +618,18 @@ end
 -- MAIN LOOP
 -----------------------
 while true do
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
 
-    local fruit = FindFruit()
+	local fruit = FindFruit()
 
-    if fruit and fruit:FindFirstChild("Handle") then
-        Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
-        AddLabel(fruit.Handle)
-        TweenToFruit(fruit)
-        task.wait(0.5)
-    else
-        Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
-        Hop()
-    end
+	if fruit and fruit:FindFirstChild("Handle") then
+		Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
+		AddLabel(fruit.Handle)
+		TweenToFruit(fruit)
+		task.wait(0.5)
+	else
+		Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+		Hop()
+	end
 end
