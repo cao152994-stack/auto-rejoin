@@ -524,53 +524,45 @@ local function TeleportNearest(A)
     return "Current"
 end
 
-local RunService = game:GetService("RunService")
-
-local Speed = 300
-
-local ProcessedFruits = {}
-
 local function TweenToFruit(fruit)
-    if not fruit or not fruit:FindFirstChild("Handle") then
-        return
-    end
+    if not fruit then return end
 
-    TeleportNearest(fruit.Handle.Position)
+    local handle = fruit:FindFirstChild("Handle")
+    if not handle then return end
+
+    TeleportNearest(handle.Position)
 
     if JustTeleported then
         JustTeleported = false
-        task.wait(0.4)
+        task.wait(0.2) -- giảm từ 1s xuống để tránh “đứng đơ”
     end
 
-    local character =GetCharacter()
-    if not character then return end
+    BodyVelocity(GetHRP())
 
-    local hrp = GetHRP()
-    if not hrp then return end
-
-    BodyVelocity(hrp)
-local char = GetCharacter()
-local hrp = GetHRP()
     while fruit
         and fruit.Parent
-        and fruit:FindFirstChild("Handle")
-        and char
-        and hrp do
+        and fruit:FindFirstChild("Handle") do
 
-        hrp = GetHRP()
+        local character = GetCharacter()
+        local hrp = GetHRP()
+        if not character or not hrp then return end
 
         NoClip()
 
         local targetPos = fruit.Handle.Position
         local distance = (targetPos - hrp.Position).Magnitude
 
-        if distance <= 5 then
+        if distance <= 3 then
             break
         end
 
         local dt = RunService.Heartbeat:Wait()
+
+        local direction = targetPos - hrp.Position
+        if direction.Magnitude == 0 then break end
+        direction = direction.Unit
+
         local moveDistance = math.min(Speed * dt, distance)
-        local direction = (targetPos - hrp.Position).Unit
         local newPos = hrp.Position + direction * moveDistance
 
         character:PivotTo(CFrame.new(newPos))
