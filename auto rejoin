@@ -404,12 +404,7 @@ end
 -----------------------
 local fruit = FindFruit()
 
------------------------
--- JOIN TEAM
------------------------
-pcall(function()
-	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
-end)
+
 
 while not fruit do
     Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
@@ -420,7 +415,12 @@ while not fruit do
     fruit = FindFruit()
 end
 
-
+-----------------------
+-- JOIN TEAM
+-----------------------
+pcall(function()
+	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
+end)
 
 task.spawn(function()
     while task.wait() do
