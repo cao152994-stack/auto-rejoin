@@ -279,7 +279,7 @@ local function Hop()
         local ID = tostring(server.id)
 
         if server.id ~= game.JobId
-        and server.playing <= 11 and server.playing >= 3
+        and server.playing <= 11
         and not Visited[ID] then
 
             print(("Hop -> %d/%d"):format(
