@@ -13,6 +13,15 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
+local function GetCharacter()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function GetHRP()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
 local HttpService = game:GetService("HttpService")
 
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1438903713304674445/_mWs9fTJ8NRLMNLgGCvmcJ7fEciTTYtUUJ4UZ6UW7Q_c73yjvaYxE9YX60hILwhZf8xQ"
@@ -163,8 +172,9 @@ local function antiSit(char)
 end
 
 task.spawn(function()
-    if player.Character then
-        antiSit(player.Character)
+	local char = GetCharacter()
+    if char then
+        antiSit(char)
     end
 
     player.CharacterAdded:Connect(function(char)
@@ -344,9 +354,9 @@ task.spawn(function()
 		for _, tool in ipairs(player.Backpack:GetChildren()) do
 			Store(tool)
 		end
-
-		if player.Character then
-			for _, tool in ipairs(player.Character:GetChildren()) do
+local char = GetCharacter()
+		if char then
+			for _, tool in ipairs(char:GetChildren()) do
 				Store(tool)
 			end
 		end
@@ -379,8 +389,8 @@ local function AddLabel(part)
 			return
 		end
 
-		local character = player.Character
-		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+		local character = GetCharacter()
+		local hrp = GetHRP()
 
 		if hrp then
 			local distance = math.floor((hrp.Position - part.Position).Magnitude)
@@ -412,11 +422,9 @@ end
 
 
 
-repeat task.wait()
-until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 task.spawn(function()
     while task.wait() do
-        local char = player.Character
+        local char = GetCharacter()
 
         if char then
             for _, v in ipairs(char:GetDescendants()) do
@@ -427,7 +435,7 @@ task.spawn(function()
         end
     end
 end)
-local hrp = player.Character.HumanoidRootPart
+local hrp = GetHRP()
 
 function BodyVelocity(hrp)
 	if not hrp:FindFirstChild("BodyVelocity") then
@@ -492,10 +500,10 @@ local FlamingoCheck = Vector3.new(
 local JustTeleported = false
 
 local function TeleportNearest(A)
-    local character = player.Character
+    local character = GetCharacter()
     if not character then return "Current" end
 
-    local hrp = character:FindFirstChild("HumanoidRootPart")
+  local hrp = GetHRP()
     if not hrp then return "Current" end
 
     local dCurse = (CurseCheck - A).Magnitude
@@ -534,21 +542,22 @@ local function TweenToFruit(fruit)
         task.wait(1)
     end
 
-    local character = player.Character
+    local character =GetCharacter()
     if not character then return end
 
-    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local hrp = GetHRP()
     if not hrp then return end
 
     BodyVelocity(hrp)
-
+local char = GetCharacter()
+local hrp = GetHRP()
     while fruit
         and fruit.Parent
         and fruit:FindFirstChild("Handle")
-        and player.Character
-        and player.Character:FindFirstChild("HumanoidRootPart") do
+        and char
+        and hrp do
 
-        hrp = player.Character.HumanoidRootPart
+        hrp = GetHRP()
 
         NoClip()
 
@@ -571,17 +580,18 @@ end
 -- MAIN LOOP
 -----------------------
 while true do
-	local fruit = FindFruit()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
 
-	if fruit and fruit:FindFirstChild("Handle") then
-		
-		Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
-		AddLabel(fruit.Handle)
-		TweenToFruit(fruit)
-		task.wait(0.5)
-	else
-		Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+    local fruit = FindFruit()
 
-    Hop()
-	end
+    if fruit and fruit:FindFirstChild("Handle") then
+        Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
+        AddLabel(fruit.Handle)
+        TweenToFruit(fruit)
+        task.wait(0.5)
+    else
+        Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
+        Hop()
+    end
 end
