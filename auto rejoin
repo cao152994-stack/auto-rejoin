@@ -419,7 +419,7 @@ end
 -- JOIN TEAM
 -----------------------
 pcall(function()
-	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
+	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Marines")
 end)
 
 task.spawn(function()
