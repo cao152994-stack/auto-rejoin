@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-
+local Speed = 300
 
 local player = Players.LocalPlayer
 
@@ -379,7 +379,7 @@ local function AddLabel(part)
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
-	label.TextColor3 = Color3.fromRGB(255, 85, 0)
+	label.TextColor3 = Color3.fromRGB(255, 0, 0)
 	label.Parent = billboard
 
 	billboard.Parent = part
@@ -498,76 +498,103 @@ local FlamingoCheck = Vector3.new(
 )
 
 local JustTeleported = false
+local FruitCache = {}
 
-local function TeleportNearest(A)
-    local character = GetCharacter()
-    if not character then return "Current" end
+local function TeleportNearest(fruit, A)
+	if not fruit then return "None" end
+	if typeof(A) ~= "Vector3" then return "None" end
 
-  local hrp = GetHRP()
-    if not hrp then return "Current" end
+	local hrp = GetHRP()
+	if not hrp then return "None" end
 
-    local dCurse = (CurseCheck - A).Magnitude
-    local dFlamingo = (FlamingoCheck - A).Magnitude
-    local dHRP = (hrp.Position - A).Magnitude
+	if FruitCache[fruit] then
+		return FruitCache[fruit]
+	end
 
-    if dCurse < dFlamingo and dCurse < dHRP then
-        hrp.CFrame = Curse
-        JustTeleported = true
-        return "Curse"
+	local dCurse = (CurseCheck - A).Magnitude
+	local dFlame = (FlamingoCheck - A).Magnitude
+	local dHRP = (hrp.Position - A).Magnitude
 
-    elseif dFlamingo < dCurse and dFlamingo < dHRP then
-        hrp.CFrame = Flamingo
-        JustTeleported = true
-        return "Flamingo"
-    end
+	print(
+		"HRP:", math.floor(dHRP),
+		"| Curse:", math.floor(dCurse),
+		"| Flamingo:", math.floor(dFlame)
+	)
 
-    return "Current"
+	local result
+
+	if dCurse < dFlame then
+		result = "Curse"
+		hrp.CFrame = Curse
+	else
+		result = "Flamingo"
+		hrp.CFrame = Flamingo
+	end
+
+	print("Result:", result)
+
+	FruitCache[fruit] = result
+
+	return result
 end
 
 local function TweenToFruit(fruit)
-    if not fruit then return end
+	if not fruit then return end
 
-    local handle = fruit:FindFirstChild("Handle")
-    if not handle then return end
+	local handle = fruit:FindFirstChild("Handle")
+	if not handle then return end
 
-    TeleportNearest(handle.Position)
+	local pos = handle.Position
+	if typeof(pos) ~= "Vector3" then return end
 
-    if JustTeleported then
-        JustTeleported = false
-        task.wait(0.2) -- giảm từ 1s xuống để tránh “đứng đơ”
-    end
+	TeleportNearest(fruit,pos)
 
-    BodyVelocity(GetHRP())
+	if JustTeleported then
+		JustTeleported = false
+		task.wait(0.2)
+	end
 
-    while fruit
-        and fruit.Parent
-        and fruit:FindFirstChild("Handle") do
+	BodyVelocity(GetHRP())
 
-        local character = GetCharacter()
-        local hrp = GetHRP()
-        if not character or not hrp then return end
+	while fruit
+		and fruit.Parent
+		and fruit:FindFirstChild("Handle") do
 
-        NoClip()
+		local character = GetCharacter()
+		local hrp = GetHRP()
 
-        local targetPos = fruit.Handle.Position
-        local distance = (targetPos - hrp.Position).Magnitude
+		if not character or not hrp then
+			task.wait(0.2)
+			continue
+		end
 
-        if distance <= 3 then
-            break
-        end
+		local target = fruit.Handle and fruit.Handle.Position
+		if typeof(target) ~= "Vector3" then break end
 
-        local dt = RunService.Heartbeat:Wait()
+		NoClip()
 
-        local direction = targetPos - hrp.Position
-        if direction.Magnitude == 0 then break end
-        direction = direction.Unit
+		local distance = (target - hrp.Position).Magnitude
 
-        local moveDistance = math.min(Speed * dt, distance)
-        local newPos = hrp.Position + direction * moveDistance
+		if distance <= 1 then
+			break
+		end
 
-        character:PivotTo(CFrame.new(newPos))
-    end
+		local dt = RunService.Heartbeat:Wait()
+
+		local direction = target - hrp.Position
+		if direction.Magnitude == 0 then print("NONE!") continue end
+
+		direction = direction.Unit
+
+		local moveDistance = math.min(Speed * dt, distance)
+		local newPos = hrp.Position + direction * moveDistance
+
+		pcall(function()
+			character:PivotTo(CFrame.new(newPos))
+		end)
+	end
 end
+
 -----------------------
 -- MAIN LOOP
 -----------------------
