@@ -539,7 +539,7 @@ local function TweenToFruit(fruit)
 
     if JustTeleported then
         JustTeleported = false
-        task.wait(1)
+        task.wait(0.4)
     end
 
     local character =GetCharacter()
