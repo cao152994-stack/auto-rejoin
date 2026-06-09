@@ -484,12 +484,14 @@ local FlamingoCheck = Vector3.new(
     592.881958
 )
 
+local JustTeleported = false
+
 local function TeleportNearest(A)
     local character = player.Character
-    if not character then return end
+    if not character then return "Current" end
 
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+    if not hrp then return "Current" end
 
     local dCurse = (CurseCheck - A).Magnitude
     local dFlamingo = (FlamingoCheck - A).Magnitude
@@ -497,9 +499,12 @@ local function TeleportNearest(A)
 
     if dCurse < dFlamingo and dCurse < dHRP then
         hrp.CFrame = Curse
+        JustTeleported = true
         return "Curse"
+
     elseif dFlamingo < dCurse and dFlamingo < dHRP then
         hrp.CFrame = Flamingo
+        JustTeleported = true
         return "Flamingo"
     end
 
@@ -517,8 +522,12 @@ local function TweenToFruit(fruit)
         return
     end
 
-    -- Chỉ check và teleport 1 lần trước khi bay tới trái
     TeleportNearest(fruit.Handle.Position)
+
+    if JustTeleported then
+        JustTeleported = false
+        task.wait(1)
+    end
 
     local character = player.Character
     if not character then return end
