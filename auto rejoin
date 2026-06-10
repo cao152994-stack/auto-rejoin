@@ -286,7 +286,10 @@ local function Hop()
 				server.playing,
 				server.maxPlayers
 				))
-Status(("Hop -> %d/%d"):format(server.playing, server.maxPlayers), Color3.fromRGB(170, 85, 255))
+Status(
+    ("Found server → %d/%d"):format(server.playing, server.maxPlayers),
+    Color3.fromRGB(0, 255, 127)
+)
 			table.insert(AllIDs, ID)
 			Visited[ID] = true
 
