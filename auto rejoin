@@ -292,9 +292,13 @@ local function Hop()
 	for _, server in ipairs(Site.data) do
 		local ID = tostring(server.id)
 
-		if server.id ~= game.JobId
-			and server.playing < 11
-			and not Visited[ID] then
+		local MinPlayers = 5
+local MaxPlayers = 10
+
+if server.id ~= game.JobId
+	and server.playing >= MinPlayers
+	and server.playing <= MaxPlayers
+	and not Visited[ID] then
 
 			print(("Hop -> %d/%d"):format(
 				server.playing,
