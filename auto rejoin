@@ -587,7 +587,7 @@ local function TweenToFruit(fruit)
 	if CurrentTween then
 		CurrentTween:Cancel()
 	end
-	
+	TeleportNearest(fruit,fruit.Handle.Position)
 	if JustTeleported == true then
 		JustTeleported = false
 		task.wait(2)
@@ -621,7 +621,14 @@ while true do
 	local fruit = FindFruit()
 
 	if fruit and fruit:FindFirstChild("Handle") then
-		Status("Tween to Fruit",Color3.fromRGB(0, 255, 0))
+if fruit.Name == "Fruit" then
+Status("Tween to fruit",Color3.fromRGB(255, 85, 0))
+else
+Status("Tween to "..fruit.Name,Color3.fromRGB(0, 255, 0))
+end
+
+
+		
     NoClip()
 	BodyVelocity(hrp)
 	AddHighlight(char)
