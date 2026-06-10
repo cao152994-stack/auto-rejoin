@@ -76,6 +76,11 @@ end
 -----------------------
 -- UI (Roblox 2008 Style)
 -----------------------
+
+local RNG = Random.new():NextNumber(0,1)
+local RNG2 = Random.new():NextNumber(0,1)
+local RNG3 = Random.new():NextNumber(0,1)
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "FruitFinderUI"
 gui.ResetOnSpawn = false
@@ -85,16 +90,18 @@ local frame = Instance.new("Frame")
 frame.Parent = gui
 frame.Size = UDim2.new(0, 520, 0, 90)
 frame.Position = UDim2.new(0.5, -260, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(192,192,192)
+frame.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
 frame.BorderSizePixel = 1
 frame.BorderColor3 = Color3.new(0,0,0)
+frame.Transparency = 0.5
 
 local accent = Instance.new("Frame")
 accent.Parent = frame
 accent.Size = UDim2.new(1,0,0,20)
 accent.Position = UDim2.new(0,0,0,0)
-accent.BackgroundColor3 = Color3.fromRGB(10,36,106)
+accent.BackgroundColor3 = Color3.fromHSV(RNG,RNG2,RNG3)
 accent.BorderSizePixel = 0
+accent.Transparency = 0.5
 
 local title = Instance.new("TextLabel")
 title.Parent = accent
@@ -102,7 +109,7 @@ title.BackgroundTransparency = 1
 title.Position = UDim2.new(0,5,0,0)
 title.Size = UDim2.new(1,-10,1,0)
 title.Text = "Fruit Finder"
-title.TextColor3 = Color3.new(1,1,1)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.ArialBold
 title.TextSize = 17
 title.TextXAlignment = Enum.TextXAlignment.Left
@@ -115,25 +122,25 @@ author.BackgroundTransparency = 1
 author.Position = UDim2.new(0,10,0,28)
 author.Size = UDim2.new(0,250,0,18)
 author.Text = "By Mai Yeu P"
-author.TextColor3 = Color3.fromRGB(20,20,20)
+author.TextColor3 = Color3.fromRGB(255, 255, 255)
 author.Font = Enum.Font.ArialBold
 author.TextSize = 15
 author.TextXAlignment = Enum.TextXAlignment.Left
-author.TextStrokeTransparency = 0.6
-author.TextStrokeColor3 = Color3.new(1,1,1)
+author.TextStrokeTransparency = 0
+author.TextStrokeColor3 = Color3.new(0, 0, 0)
 
 local status = Instance.new("TextLabel")
 status.Parent = frame
 status.BackgroundTransparency = 1
 status.Position = UDim2.new(0,10,0,50)
 status.Size = UDim2.new(1,-20,0,18)
-status.Text = "Idle"
-status.TextColor3 = Color3.new(0,0,0)
+status.Text = "Loading..."
+status.TextColor3 = Color3.new(1, 1, 1)
 status.Font = Enum.Font.ArialBold
-status.TextSize = 17
+status.TextSize = 20
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextStrokeTransparency = 0
-status.TextStrokeColor3 = Color3.new(1,1,1)
+status.TextStrokeColor3 = Color3.new(0, 0, 0)
 
 local playerCount = Instance.new("TextLabel")
 playerCount.Parent = frame
@@ -141,12 +148,14 @@ playerCount.BackgroundTransparency = 1
 playerCount.Position = UDim2.new(0,350,0,28)
 playerCount.Size = UDim2.new(0,160,0,18)
 playerCount.Text = "Players: "..#game.Players:GetChildren()
-playerCount.TextColor3 = Color3.fromRGB(20,20,20)
+playerCount.TextColor3 = Color3.fromRGB(255, 255, 255)
 playerCount.Font = Enum.Font.ArialBold
 playerCount.TextSize = 15
 playerCount.TextXAlignment = Enum.TextXAlignment.Right
-playerCount.TextStrokeTransparency = 0.6
-playerCount.TextStrokeColor3 = Color3.new(1,1,1)
+playerCount.TextStrokeTransparency = 0
+playerCount.TextStrokeColor3 = Color3.new(0, 0, 0)
+
+
 local function UpdatePlayerCount()
 	playerCount.Text = "👥 "..#game.Players:GetChildren().." Players"
 end
