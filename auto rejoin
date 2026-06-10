@@ -135,7 +135,7 @@ status.Size = UDim2.new(1,-20,0,18)
 status.Text = "Loading..."
 status.TextColor3 = Color3.fromRGB(0, 255, 0)
 status.Font = Enum.Font.ArialBold
-status.TextSize = 30
+status.TextSize = 25
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextStrokeTransparency = 1
 status.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -300,7 +300,7 @@ local function Hop()
 				server.playing,
 				server.maxPlayers
 				))
-			Status(("Found server → %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(0, 255, 0))
+			Status(("Found server have %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(0, 255, 0))
 			table.insert(AllIDs, ID)
 			Visited[ID] = true
 
