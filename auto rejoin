@@ -47,7 +47,7 @@ local function SendWebhook(NotificationName, FruitName)
                     {
 						name = "PlaceId",
 						value = game.PlaceId,
-						inline = true
+						inline = false
 					},
 					{
 						name = "Job ID",
