@@ -592,10 +592,6 @@ local function TweenToFruit(fruit)
 		JustTeleported = false
 		task.wait(2)
 	end
-	
-	NoClip()
-	BodyVelocity(hrp)
-	AddHighlight(player.Character)
 	local targetCF = fruit.Handle.CFrame + Vector3.new(0, fruit.Handle.Size.Y, 0)
 	local distance = math.max(0, (hrp.Position - fruit.Handle.Position).Magnitude - 150)
 
@@ -626,6 +622,9 @@ while true do
 
 	if fruit and fruit:FindFirstChild("Handle") then
 		Status("Tween to Fruit",Color3.fromRGB(0, 255, 0))
+    NoClip()
+	BodyVelocity(hrp)
+	AddHighlight(char)
 		AddLabel(fruit.Handle)
 		TweenToFruit(fruit)
 		task.wait(0.5)
