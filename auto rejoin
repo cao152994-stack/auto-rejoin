@@ -128,6 +128,8 @@ status.TextColor3 = Color3.new(0,0,0)
 status.Font = Enum.Font.ArialBold
 status.TextSize = 16
 status.TextXAlignment = Enum.TextXAlignment.Left
+status.TextStrokeTransparency = 0
+status.TextStrokeColor3 = Color3.new(0, 0, 0)
 
 local playerCount = Instance.new("TextLabel")
 playerCount.Parent = frame
@@ -286,7 +288,7 @@ local function Hop()
 				server.playing,
 				server.maxPlayers
 				))
-Status(("Found server → %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(0, 255, 127))
+Status(("Found server → %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(170, 0, 255))
 			table.insert(AllIDs, ID)
 			Visited[ID] = true
 
