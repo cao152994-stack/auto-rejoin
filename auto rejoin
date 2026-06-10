@@ -289,14 +289,19 @@ local function Hop()
 		Visited = {}
 	end
 
+local TargetPlayers = math.random(5, 10)
 local Candidates = {}
+
+Status(
+	"Looking for "..TargetPlayers.." players",
+	Color3.fromRGB(255, 255, 0)
+)
 
 for _, server in ipairs(Site.data) do
 	local ID = tostring(server.id)
 
 	if server.id ~= game.JobId
-		and server.playing >= 5
-		and server.playing <= 9
+		and server.playing == TargetPlayers
 		and not Visited[ID] then
 
 		table.insert(Candidates, server)
@@ -337,6 +342,11 @@ if #Candidates > 0 then
 
 	return true
 end
+
+Status(
+	"No "..TargetPlayers.." player server found",
+	Color3.fromRGB(255, 0, 0)
+)
 
 return false
 end
