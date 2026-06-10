@@ -44,6 +44,11 @@ local function SendWebhook(NotificationName, FruitName)
 						value = player.Name,
 						inline = true
 					},
+{
+						name = "PlaceId",
+						value = game.PlaceId,
+						inline = true
+					},
 					{
 						name = "Job ID",
 						value = game.JobId,
