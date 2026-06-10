@@ -476,13 +476,15 @@ function BodyVelocity(hrp)
 end
 
 local function AddHighlight(char)
-	local highlight = Instance.new("Highlight")
+	if not char:FindFirstChild("ChaHighlight") then
+			local highlight = Instance.new("Highlight")
 	highlight.Name = "ChaHighlight"
 	highlight.FillTransparency = 0.6
 	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 	highlight.FillColor = Color3.fromRGB(255, 0, 0)
 	highlight.OutlineTransparency = 0
 	highlight.Parent = char
+	end
 end
 
 function NoClip()
@@ -530,7 +532,7 @@ local FlamingoCheck = Vector3.new(
 	592.881958
 )
 
-local JustTeleported = false
+local JustTeleported = true
 local FruitCache = {}
 
 local function TeleportNearest(fruit, A)
@@ -571,60 +573,45 @@ local function TeleportNearest(fruit, A)
 	return result
 end
 
+
 local function TweenToFruit(fruit)
-	if not fruit then return end
-
-	local handle = fruit:FindFirstChild("Handle")
-	if not handle then return end
-
-	local pos = handle.Position
-	if typeof(pos) ~= "Vector3" then return end
-
-	TeleportNearest(fruit,pos)
-
-	if JustTeleported then
-		JustTeleported = false
-		task.wait(0.2)
+	if not fruit or not fruit:FindFirstChild("Handle") then
+		return
 	end
 
-	BodyVelocity(GetHRP())
+	local hrp = GetHRP()
+	if not hrp then
+		return
+	end
 
-	while fruit
-		and fruit.Parent
-		and fruit:FindFirstChild("Handle") do
+	if CurrentTween then
+		CurrentTween:Cancel()
+	end
+	
+	if JustTeleported == true then
+		JustTeleported = false
+		task.wait(2)
+	end
+	
+	NoClip()
+	BodyVelocity(hrp)
+	AddHighlight(player.Character)
+	local targetCF = fruit.Handle.CFrame + Vector3.new(0, fruit.Handle.Size.Y, 0)
+	local distance = math.max(0, (hrp.Position - fruit.Handle.Position).Magnitude - 150)
 
-		local character = GetCharacter()
-		local hrp = GetHRP()
+	CurrentTween = TweenService:Create(
+		hrp,
+		TweenInfo.new(distance / Speed, Enum.EasingStyle.Linear),
+		{
+			CFrame = targetCF
+		}
+	)
 
-		if not character or not hrp then
-			task.wait(0.2)
-			continue
-		end
+	CurrentTween:Play()
+	CurrentTween.Completed:Wait()
 
-		local target = fruit.Handle and fruit.Handle.Position
-		if typeof(target) ~= "Vector3" then break end
-
-		NoClip()
-
-		local distance = (target - hrp.Position).Magnitude - 150
-
-		if distance <= 1 then
-			break
-		end
-
-		local dt = RunService.Heartbeat:Wait()
-
-		local direction = target - hrp.Position
-		if direction.Magnitude == 0 then print("NONE!") continue end
-
-		direction = direction.Unit
-
-		local moveDistance = math.min(Speed * dt, distance)
-		local newPos = hrp.Position + direction * moveDistance
-
-		pcall(function()
-			character:PivotTo(CFrame.new(newPos))
-		end)
+	if fruit and fruit.Parent and fruit:FindFirstChild("Handle") then
+		hrp.CFrame = fruit.Handle.CFrame
 	end
 end
 
