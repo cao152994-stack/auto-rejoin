@@ -607,7 +607,7 @@ local function TweenToFruit(fruit)
 	TeleportNearest(fruit,fruit.Handle.Position)
 	if JustTeleported == true then
 		JustTeleported = false
-		task.wait(2)
+		task.wait(1)
 	end
 	local targetCF = fruit.Handle.CFrame + Vector3.new(0, fruit.Handle.Size.Y, 0)
 	local distance = math.max(0, (hrp.Position - fruit.Handle.Position).Magnitude - 150)
