@@ -532,7 +532,7 @@ local FlamingoCheck = Vector3.new(
 	592.881958
 )
 
-local JustTeleported = true
+local JustTeleported = false
 local FruitCache = {}
 
 local function TeleportNearest(fruit, A)
@@ -567,7 +567,7 @@ local function TeleportNearest(fruit, A)
 	end
 
 	print("Result:", result)
-
+JustTeleported = true
 	FruitCache[fruit] = result
 
 	return result
@@ -622,7 +622,7 @@ while true do
 
 	if fruit and fruit:FindFirstChild("Handle") then
 if fruit.Name == "Fruit" then
-Status("Tween to fruit",Color3.fromRGB(255, 85, 0))
+Status("Tween to fruit spawn",Color3.fromRGB(255, 85, 0))
 else
 Status("Tween to "..fruit.Name,Color3.fromRGB(0, 255, 0))
 end
