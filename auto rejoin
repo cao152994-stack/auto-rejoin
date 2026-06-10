@@ -638,10 +638,11 @@ while true do
 	local fruit = FindFruit()
 
 	if fruit and fruit:FindFirstChild("Handle") then
+local Distance = math.floor((hrp.Position - fruit.Handle.Position).Magnitude / 3)
 if fruit.Name == "Fruit" then
-Status("Tween to fruit spawn",Color3.fromRGB(255, 85, 0))
+Status("Tween to fruit spawn ".."["..Distance.."m".."]",Color3.fromRGB(255, 85, 0))
 else
-Status("Tween to "..fruit.Name,Color3.fromRGB(0, 255, 0))
+Status("Tween to "..fruit.Name.." ["..Distance.."m".."]",Color3.fromRGB(0, 255, 0))
 end
 
 
