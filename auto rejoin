@@ -77,9 +77,7 @@ end
 -- UI (Roblox 2008 Style)
 -----------------------
 
-local RNG = Random.new():NextNumber(0,1)
-local RNG2 = Random.new():NextNumber(0,1)
-local RNG3 = Random.new():NextNumber(0,1)
+
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "FruitFinderUI"
@@ -90,16 +88,16 @@ local frame = Instance.new("Frame")
 frame.Parent = gui
 frame.Size = UDim2.new(0, 520, 0, 90)
 frame.Position = UDim2.new(0.5, -260, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(130, 130, 130)
+frame.BackgroundColor3 = Color3.fromRGB(170, 85, 255)
 frame.BorderSizePixel = 1
 frame.BorderColor3 = Color3.new(0,0,0)
-frame.Transparency = 0.5
+frame.Transparency = 0.3
 
 local accent = Instance.new("Frame")
 accent.Parent = frame
 accent.Size = UDim2.new(1,0,0,20)
 accent.Position = UDim2.new(0,0,0,0)
-accent.BackgroundColor3 = Color3.fromHSV(RNG,RNG2,RNG3)
+accent.BackgroundColor3 = Color3.fromHSV(0.666667, 1, 1)
 accent.BorderSizePixel = 0
 accent.Transparency = 0.5
 
@@ -111,7 +109,7 @@ title.Size = UDim2.new(1,-10,1,0)
 title.Text = "Fruit Finder"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.ArialBold
-title.TextSize = 17
+title.TextSize = 20
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.TextStrokeTransparency = 0
 title.TextStrokeColor3 = Color3.new(0,0,0)
@@ -124,7 +122,7 @@ author.Size = UDim2.new(0,250,0,18)
 author.Text = "By Mai Yeu P"
 author.TextColor3 = Color3.fromRGB(255, 255, 255)
 author.Font = Enum.Font.ArialBold
-author.TextSize = 15
+author.TextSize = 20
 author.TextXAlignment = Enum.TextXAlignment.Left
 author.TextStrokeTransparency = 0
 author.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -132,12 +130,12 @@ author.TextStrokeColor3 = Color3.new(0, 0, 0)
 local status = Instance.new("TextLabel")
 status.Parent = frame
 status.BackgroundTransparency = 1
-status.Position = UDim2.new(0,10,0,50)
+status.Position = UDim2.new(0,10,0,60)
 status.Size = UDim2.new(1,-20,0,18)
 status.Text = "Loading..."
-status.TextColor3 = Color3.new(1, 1, 1)
+status.TextColor3 = Color3.fromRGB(0, 255, 0)
 status.Font = Enum.Font.ArialBold
-status.TextSize = 20
+status.TextSize = 30
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextStrokeTransparency = 1
 status.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -150,7 +148,7 @@ playerCount.Size = UDim2.new(0,160,0,18)
 playerCount.Text = "Players: "..#game.Players:GetChildren()
 playerCount.TextColor3 = Color3.fromRGB(255, 255, 255)
 playerCount.Font = Enum.Font.ArialBold
-playerCount.TextSize = 15
+playerCount.TextSize = 20
 playerCount.TextXAlignment = Enum.TextXAlignment.Right
 playerCount.TextStrokeTransparency = 0
 playerCount.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -302,7 +300,7 @@ local function Hop()
 				server.playing,
 				server.maxPlayers
 				))
-Status(("Found server → %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(170, 0, 255))
+			Status(("Found server → %d/%d"):format(server.playing, server.maxPlayers),Color3.fromRGB(0, 255, 0))
 			table.insert(AllIDs, ID)
 			Visited[ID] = true
 
@@ -640,7 +638,7 @@ while true do
 	local fruit = FindFruit()
 
 	if fruit and fruit:FindFirstChild("Handle") then
-		Status("Tween to Fruit",Color3.fromRGB(0, 170, 0))
+		Status("Tween to Fruit",Color3.fromRGB(0, 255, 0))
 		AddLabel(fruit.Handle)
 		TweenToFruit(fruit)
 		task.wait(0.5)
