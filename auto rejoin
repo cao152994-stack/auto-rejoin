@@ -139,7 +139,7 @@ status.TextColor3 = Color3.new(1, 1, 1)
 status.Font = Enum.Font.ArialBold
 status.TextSize = 20
 status.TextXAlignment = Enum.TextXAlignment.Left
-status.TextStrokeTransparency = 0
+status.TextStrokeTransparency = 1
 status.TextStrokeColor3 = Color3.new(0, 0, 0)
 
 local playerCount = Instance.new("TextLabel")
