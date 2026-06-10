@@ -289,7 +289,7 @@ local function Hop()
 		Visited = {}
 	end
 
-local TargetPlayers = math.random(5, 11)
+local TargetPlayers = math.random(3, 11)
 local Candidates = {}
 
 Status(
