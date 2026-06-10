@@ -623,7 +623,7 @@ local function TweenToFruit(fruit)
 		local newPos = hrp.Position + direction * moveDistance
 
 		pcall(function()
-			character:PivotTo(CFrame.new(newPos + Vector3.new(0, handle.Size.Y, 0)))
+			character:PivotTo(CFrame.new(newPos))
 		end)
 	end
 end
