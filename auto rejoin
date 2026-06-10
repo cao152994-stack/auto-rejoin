@@ -294,66 +294,50 @@ local function Hop()
 		Visited = {}
 	end
 
-local TargetPlayers = math.random(1, 11)
-local Candidates = {}
+	for _, server in ipairs(Site.data) do
+		local ID = tostring(server.id)
 
-Status(
-	"Looking for "..TargetPlayers.." players",
-	Color3.fromRGB(255, 255, 0)
-)
+		local MinPlayers = 5
+		local MaxPlayers = 10
 
-for _, server in ipairs(Site.data) do
-	local ID = tostring(server.id)
+		if server.id ~= game.JobId
+			and server.playing >= MinPlayers
+			and server.playing <= MaxPlayers
+			and not Visited[ID] then
 
-	if server.id ~= game.JobId
-		and server.playing == TargetPlayers
-		and not Visited[ID] then
+			print(("Hop -> %d/%d"):format(
+				server.playing,
+				server.maxPlayers
+			))
 
-		table.insert(Candidates, server)
+			Status(
+				("Found server have %d / %d players"):format(
+					server.playing,
+					server.maxPlayers
+				),
+				Color3.fromRGB(0, 255, 0)
+			)
+
+			table.insert(AllIDs, ID)
+			Visited[ID] = true
+
+			pcall(function()
+				writefile(
+					"server-hop-temp.json",
+					HttpService:JSONEncode(AllIDs)
+				)
+			end)
+
+			ReplicatedStorage.__ServerBrowser:InvokeServer(
+				"teleport",
+				server.id
+			)
+
+			return true
+		end
 	end
-end
 
-if #Candidates > 0 then
-	local server = Candidates[math.random(#Candidates)]
-	local ID = tostring(server.id)
-
-	print(("Hop -> %d/%d"):format(
-		server.playing,
-		server.maxPlayers
-	))
-
-	Status(
-		("Found server have %d / %d players"):format(
-			server.playing,
-			server.maxPlayers
-		),
-		Color3.fromRGB(0, 255, 0)
-	)
-
-	table.insert(AllIDs, ID)
-	Visited[ID] = true
-
-	pcall(function()
-		writefile(
-			"server-hop-temp.json",
-			HttpService:JSONEncode(AllIDs)
-		)
-	end)
-
-	ReplicatedStorage.__ServerBrowser:InvokeServer(
-		"teleport",
-		server.id
-	)
-
-	return true
-end
-
-Status(
-	"No "..TargetPlayers.." player server found",
-	Color3.fromRGB(255, 0, 0)
-)
-
-return false
+	return false
 end
 -----------------------
 -- STORE FUNCTION
