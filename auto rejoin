@@ -652,7 +652,7 @@ end
 	AddHighlight(char)
 		AddLabel(fruit.Handle)
 		TweenToFruit(fruit)
-		task.wait(0.5)
+		task.wait(0.1)
 	else
 		Status("No fruit -> Hopping", Color3.fromRGB(255,255,0))
 		Hop()
