@@ -104,8 +104,10 @@ title.Size = UDim2.new(1,-10,1,0)
 title.Text = "Fruit Finder"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.ArialBold
-title.TextSize = 16
+title.TextSize = 17
 title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextStrokeTransparency = 0
+title.TextStrokeColor3 = Color3.new(0,0,0)
 
 local author = Instance.new("TextLabel")
 author.Parent = frame
@@ -113,10 +115,12 @@ author.BackgroundTransparency = 1
 author.Position = UDim2.new(0,10,0,28)
 author.Size = UDim2.new(0,250,0,18)
 author.Text = "By Mai Yeu P"
-author.TextColor3 = Color3.new(0,0,0)
-author.Font = Enum.Font.Arial
-author.TextSize = 14
+author.TextColor3 = Color3.fromRGB(20,20,20)
+author.Font = Enum.Font.ArialBold
+author.TextSize = 15
 author.TextXAlignment = Enum.TextXAlignment.Left
+author.TextStrokeTransparency = 0.6
+author.TextStrokeColor3 = Color3.new(1,1,1)
 
 local status = Instance.new("TextLabel")
 status.Parent = frame
@@ -126,10 +130,10 @@ status.Size = UDim2.new(1,-20,0,18)
 status.Text = "Idle"
 status.TextColor3 = Color3.new(0,0,0)
 status.Font = Enum.Font.ArialBold
-status.TextSize = 16
+status.TextSize = 17
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.TextStrokeTransparency = 0
-status.TextStrokeColor3 = Color3.new(0, 0, 0)
+status.TextStrokeColor3 = Color3.new(1,1,1)
 
 local playerCount = Instance.new("TextLabel")
 playerCount.Parent = frame
@@ -137,11 +141,12 @@ playerCount.BackgroundTransparency = 1
 playerCount.Position = UDim2.new(0,350,0,28)
 playerCount.Size = UDim2.new(0,160,0,18)
 playerCount.Text = "Players: "..#game.Players:GetChildren()
-playerCount.TextColor3 = Color3.new(0,0,0)
+playerCount.TextColor3 = Color3.fromRGB(20,20,20)
 playerCount.Font = Enum.Font.ArialBold
-playerCount.TextSize = 14
+playerCount.TextSize = 15
 playerCount.TextXAlignment = Enum.TextXAlignment.Right
-
+playerCount.TextStrokeTransparency = 0.6
+playerCount.TextStrokeColor3 = Color3.new(1,1,1)
 local function UpdatePlayerCount()
 	playerCount.Text = "👥 "..#game.Players:GetChildren().." Players"
 end
