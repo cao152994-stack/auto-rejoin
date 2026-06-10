@@ -286,7 +286,7 @@ local function Hop()
 				server.playing,
 				server.maxPlayers
 				))
-
+Status(("Hop -> %d/%d"):format(server.playing, server.maxPlayers), Color3.fromRGB(0, 170, 0))
 			table.insert(AllIDs, ID)
 			Visited[ID] = true
 
@@ -296,7 +296,7 @@ local function Hop()
 					HttpService:JSONEncode(AllIDs)
 				)
 			end)
-Status("A server with "..server.playing.." players has been found.", Color3.fromRGB(0, 170, 0))
+
 			ReplicatedStorage.__ServerBrowser:InvokeServer(
 				"teleport",
 				server.id
