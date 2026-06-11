@@ -298,7 +298,7 @@ local function Hop()
 		local ID = tostring(server.id)
 
 		local MinPlayers = 5
-		local MaxPlayers = 10
+		local MaxPlayers = 11
 
 		if server.id ~= game.JobId
 			and server.playing >= MinPlayers
