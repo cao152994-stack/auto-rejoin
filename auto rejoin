@@ -523,31 +523,13 @@ end
 -- TWEEN FUNCTION
 -----------------------
 
-local Curse = CFrame.new(
-	920.478027, 154.901001, 32838.9648,
-	0, 0, -1,
-	0, 1, 0,
-	1, 0, 0
-)
+local Curse = workspace.Map.GhostShipInterior.Teleport
 
-local Flamingo = CFrame.new(
-	2284.90918, 15.537796, 910.481323,
-	1, 0, 0,
-	0, 1, 0,
-	0, 0, 1
-)
+local Flamingo = workspace.Map.Dressrosa.FlamingoExit
 
-local CurseCheck = Vector3.new(
-	-6496.89795,
-	89.0350037,
-	-116.509003
-)
+local CurseCheck = workspace.Map.GhostShip.Teleport
 
-local FlamingoCheck = Vector3.new(
-	-286.985962,
-	306.13739,
-	592.881958
-)
+local FlamingoCheck = workspace.Map.Dressrosa.FlamingoEntrance
 
 local JustTeleported = false
 local FruitCache = {}
@@ -563,8 +545,8 @@ local function TeleportNearest(fruit, A)
 		return FruitCache[fruit]
 	end
 
-	local dCurse = (CurseCheck - A).Magnitude
-	local dFlame = (FlamingoCheck - A).Magnitude
+	local dCurse = (CurseCheck.Position - A).Magnitude
+	local dFlame = (FlamingoCheck.Position - A).Magnitude
 	local dHRP = (hrp.Position - A).Magnitude
 
 	print(
@@ -577,10 +559,10 @@ local function TeleportNearest(fruit, A)
 
 	if dCurse < dFlame then
 		result = "Curse"
-		hrp.CFrame = Curse
+		hrp.CFrame = Curse.CFrame
 	else
 		result = "Flamingo"
-		hrp.CFrame = Flamingo
+		hrp.CFrame = Flamingo.CFrame
 	end
 
 	print("Result:", result)
