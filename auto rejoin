@@ -523,54 +523,7 @@ end
 -- TWEEN FUNCTION
 -----------------------
 
-local Curse = workspace.Map.GhostShipInterior.Teleport
 
-local Flamingo = workspace.Map.Dressrosa.FlamingoExit
-
-local CurseCheck = workspace.Map.GhostShip.Teleport
-
-local FlamingoCheck = workspace.Map.Dressrosa.FlamingoEntrance
-
-local JustTeleported = false
-local FruitCache = {}
-
-local function TeleportNearest(fruit, A)
-	if not fruit then return "None" end
-	if typeof(A) ~= "Vector3" then return "None" end
-
-	local hrp = GetHRP()
-	if not hrp then return "None" end
-
-	if FruitCache[fruit] then
-		return FruitCache[fruit]
-	end
-
-	local dCurse = (CurseCheck.Position - A).Magnitude
-	local dFlame = (FlamingoCheck.Position - A).Magnitude
-	local dHRP = (hrp.Position - A).Magnitude
-
-	print(
-		"HRP:", math.floor(dHRP),
-		"| Curse:", math.floor(dCurse),
-		"| Flamingo:", math.floor(dFlame)
-	)
-
-	local result
-
-	if dCurse < dFlame then
-		result = "Curse"
-		hrp.CFrame = Curse.CFrame
-	else
-		result = "Flamingo"
-		hrp.CFrame = Flamingo.CFrame
-	end
-
-	print("Result:", result)
-JustTeleported = true
-	FruitCache[fruit] = result
-
-	return result
-end
 
 
 local function TweenToFruit(fruit)
@@ -586,7 +539,7 @@ local function TweenToFruit(fruit)
 	if CurrentTween then
 		CurrentTween:Cancel()
 	end
-	TeleportNearest(fruit,fruit.Handle.Position)
+
 	if JustTeleported == true then
 		JustTeleported = false
 		task.wait(1)
